@@ -20,7 +20,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: ['https://example.com', 'http://localhost:3000'], // Frontend URLs
+    origin: ['https://cyber-mind-frontend-kappa.vercel.app'], // Frontend URLs
     credentials: true, // Allow cookies if needed
   });
 
