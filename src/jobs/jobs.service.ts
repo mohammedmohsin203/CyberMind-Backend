@@ -13,14 +13,8 @@ export class JobsService {
   ) {}
 
   async create(createJobDto: CreateJobDto): Promise<Job> {
-    if (
-      !createJobDto.minSalary &&
-      !createJobDto.maxSalary &&
-      createJobDto.salaryRange
-    ) {
-      const [min, max] = createJobDto.salaryRange
-        .split('-')
-        .map((s) => parseInt(s.trim(), 10));
+    if (!createJobDto.minSalary && !createJobDto.maxSalary && createJobDto.salaryRange) {
+      const [min, max] = createJobDto.salaryRange.split('-').map((s) => parseInt(s.trim(), 10));
       createJobDto.minSalary = min;
       createJobDto.maxSalary = max;
     }
@@ -62,5 +56,24 @@ export class JobsService {
     }
 
     return query.getMany();
+  }
+
+  async getFilterData(): Promise<{ jobTitles: string[]; locations: string[] }> {
+    const jobs = await this.jobsRepository.find({
+      select: ['jobTitle', 'location'],
+    });
+
+    const jobTitlesSet = new Set<string>();
+    const locationsSet = new Set<string>();
+
+    for (const job of jobs) {
+      if (job.jobTitle) jobTitlesSet.add(job.jobTitle);
+      if (job.location) locationsSet.add(job.location);
+    }
+
+    return {
+      jobTitles: Array.from(jobTitlesSet),
+      locations: Array.from(locationsSet),
+    };
   }
 }
