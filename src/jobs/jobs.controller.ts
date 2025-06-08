@@ -4,7 +4,9 @@ import {
   Body,
   UploadedFile,
   UseInterceptors,
-  BadRequestException, Query, Get,
+  BadRequestException,
+  Query,
+  Get,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -14,7 +16,7 @@ import { validateOrReject, ValidationError } from 'class-validator';
 
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
-import {FilterJobDto} from "./dto/filter-job.dto";
+import { FilterJobDto } from './dto/filter-job.dto';
 
 @Controller('jobs')
 export class JobsController {
@@ -26,18 +28,14 @@ export class JobsController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const fileExt = extname(file.originalname);
           cb(null, `${file.fieldname}-${uniqueSuffix}${fileExt}`);
         },
       }),
-    }),
+    })
   )
-  async create(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: Record<string, any>,
-  ) {
+  async create(@UploadedFile() file: Express.Multer.File, @Body() body: Record<string, any>) {
     if (body.minSalary !== undefined) {
       body.minSalary = parseInt(body.minSalary, 10);
       if (isNaN(body.minSalary)) {
@@ -57,7 +55,7 @@ export class JobsController {
     const dtoObject = plainToInstance(
       CreateJobDto,
       { ...body, imageUrl },
-      { enableImplicitConversion: true },
+      { enableImplicitConversion: true }
     );
 
     try {
@@ -75,5 +73,10 @@ export class JobsController {
   @Get()
   async findAll(@Query() filter: FilterJobDto) {
     return this.jobsService.findAll(filter);
+  }
+
+  @Get('filters')
+  async getFilterOptions() {
+    return this.jobsService.getFilterData();
   }
 }
